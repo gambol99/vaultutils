@@ -15,6 +15,10 @@ limitations under the License.
 
 package vaultutils
 
+import (
+	"encoding/json"
+)
+
 //
 // HasPolicy check if the policy exists
 //
@@ -54,15 +58,17 @@ func (r vaultctl) GetPolicy(name string) (Policy, error) {
 		return Policy{}, ErrResourceNotFound
 	}
 
-	policy, err := r.client.Sys().GetPolicy(name)
+	content, err := r.client.Sys().GetPolicy(name)
 	if err != nil {
 		return Policy{}, err
 	}
+	var policy Policy
 
-	return Policy{
-		Name:   name,
-		Policy: policy,
-	}, nil
+	if err := json.Unmarshal([]byte(content), &policy); err != nil {
+		return Policy{}, err
+	}
+
+	return policy, nil
 }
 
 //
@@ -82,7 +88,13 @@ func (r vaultctl) DeletePolicy(name string) error {
 // SetPolicy sets a policy in vault
 //
 func (r vaultctl) SetPolicy(policy Policy) error {
-	return r.client.Sys().PutPolicy(policy.Name, policy.Policy)
+	// step: encode the policy into json
+	content, err := json.Marshal(policy)
+	if err != nil {
+		return err
+	}
+
+	return r.client.Sys().PutPolicy(policy.Name, string(content))
 }
 
 //
@@ -90,4 +102,18 @@ func (r vaultctl) SetPolicy(policy Policy) error {
 //
 func (r vaultctl) ListPolicies() ([]string, error) {
 	return r.client.Sys().ListPolicies()
+}
+
+//
+// Clone returns a copy of the policy
+//
+func (r Policy) Clone() Policy {
+	p := Policy{
+		Name: r.Name,
+	}
+	for k, v := range p.Path {
+		p.Path[k] = v
+	}
+
+	return p
 }

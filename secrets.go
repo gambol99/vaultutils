@@ -13,12 +13,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-
 package vaultutils
 
 // AddGenericSecrets adds a generic secret
 func (r vaultctl) AddGenericSecrets(path string, values map[string]string) error {
-
 
 	return nil
 }
@@ -26,13 +24,11 @@ func (r vaultctl) AddGenericSecrets(path string, values map[string]string) error
 // RemoveGenericSecret remove a secret
 func (r vaultctl) RemoveGenericSecret(path string) error {
 
-
 	return nil
 }
 
 // ListGenericSecrets lists all the secrets under a path
 func (r vaultctl) ListGenericSecrets(string) ([]string, error) {
-
 
 	return []string{}, nil
 }

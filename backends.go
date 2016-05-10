@@ -142,3 +142,24 @@ func (r Backend) IsValid() error {
 
 	return nil
 }
+
+//
+// Clone makes a deep copy the backend
+//
+func (r Backend) Clone() Backend {
+	b := Backend{
+		Path:            r.Path,
+		Description:     r.Description,
+		Type:            r.Type,
+		DefaultLeaseTTL: r.DefaultLeaseTTL,
+		MaxLeaseTTL:     r.MaxLeaseTTL,
+		Attrs:           make([]Attributes, len(r.Attrs)),
+	}
+	for i := 0; i < len(r.Attrs); i++ {
+		for k, v := range r.Attrs[i] {
+			b.Attrs[i][k] = v
+		}
+	}
+
+	return b
+}

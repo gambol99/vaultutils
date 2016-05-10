@@ -16,11 +16,11 @@ limitations under the License.
 package vaultutils
 
 import (
-	"fmt"
-	"time"
 	"crypto/tls"
+	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/vault/api"
 )

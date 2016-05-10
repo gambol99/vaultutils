@@ -41,11 +41,6 @@ var (
 // Attributes is a map of configuration
 type Attributes map[string]interface{}
 
-// Metadata provides context to the model
-type Metadata struct {
-	Version string `yaml:"version" json:"version"`
-}
-
 // Config is the library configuration
 type Config struct {
 	// Hostname is the address of the vault service
@@ -58,7 +53,6 @@ type Config struct {
 
 // Auth defined a authentication backend
 type Auth struct {
-	Metadata
 	// Path is the path of the authentication backend
 	Path string `yaml:"path" json:"path" hcl:"path"`
 	// Type is the authentication type
@@ -71,7 +65,6 @@ type Auth struct {
 
 // Backend defined the type and configuration for a backend in vault
 type Backend struct {
-	Metadata
 	// Path is the mountpoint for the mount
 	Path string `yaml:"path" json:"path" hcl:"path"`
 	// Description is the a description for the backend
@@ -88,16 +81,22 @@ type Backend struct {
 
 // Policy defines a vault policy
 type Policy struct {
-	Metadata
 	// Name is the name of the policy
 	Name string `yaml:"name" json:"name" hcl:"name"`
-	// Policy is the policy itself
+	// Path is a series of paths and their permissions
+	Path map[string]PolicyPermission `yaml:"path" json:"path" hcl:"path"`
+}
+
+// PolicyPermission represents a path permission
+type PolicyPermission struct {
+	// Policy
 	Policy string `yaml:"policy" json:"policy" hcl:"policy"`
+	// Capabilities
+	Capabilities []string `yaml:"capabilities" json:"capabilities" hcl:"capabilities"`
 }
 
 // Secret defines a secret
 type Secret struct {
-	Metadata
 	// Path is key for this secret
 	Path string `yaml:"path" json:"path" hcl:"path"`
 	// Values is a series of values associated to the secret
@@ -107,7 +106,7 @@ type Secret struct {
 // Credentials are credentials to login into vault
 type Credentials struct {
 	// Path is the path of the auth backend
-	Path string  `yaml:"path" json:"path" hcl:"path"`
+	Path string `yaml:"path" json:"path" hcl:"path"`
 	// UserPass is the credentials for a userpass auth backend
 	UserPass *UserPass `yaml:"userpass" json:"userpass" hcl:"userpass"`
 	// UserToken is a token struct for this user
