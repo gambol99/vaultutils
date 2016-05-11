@@ -18,6 +18,7 @@ package vaultutils
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/hashicorp/vault/api"
 )
@@ -25,14 +26,14 @@ import (
 //
 // MountBackend creates or update a secrets backend
 //
-func (r vaultctl) MountBackend(b Backend) error {
+func (r vaultctl) MountBackend(b Backend) (bool, error) {
 	if err := b.IsValid(); err != nil {
-		return err
+		return false, err
 	}
 	// step: check if the backend exists
 	found, err := r.HasBackend(b.Path)
 	if err != nil {
-		return err
+		return found, err
 	}
 	if !found {
 		if err := r.client.Sys().Mount(b.Path, &api.MountInput{
@@ -43,7 +44,7 @@ func (r vaultctl) MountBackend(b Backend) error {
 				MaxLeaseTTL:     b.MaxLeaseTTL.String(),
 			},
 		}); err != nil {
-			return err
+			return true, err
 		}
 		found = false
 	}
@@ -56,14 +57,14 @@ func (r vaultctl) MountBackend(b Backend) error {
 		}
 		resp, err := r.request("PUT", c.GetPath(b.Path), &c)
 		if err != nil {
-			return err
+			return !found, err
 		}
 		if resp.StatusCode != http.StatusNoContent {
-			return err
+			return !found, err
 		}
 	}
 
-	return nil
+	return !found, nil
 }
 
 //
@@ -80,7 +81,7 @@ func (r vaultctl) DeleteBackend(path string) error {
 }
 
 //
-// ListMounts retrieves a list of mounted backends
+// ListMounts retrieves a list of mounted backend's
 //
 func (r vaultctl) ListMounts() ([]string, error) {
 	var list []string
@@ -89,8 +90,8 @@ func (r vaultctl) ListMounts() ([]string, error) {
 	if err != nil {
 		return list, err
 	}
-	for k, _ := range mounts {
-		list = append(list, k)
+	for k := range mounts {
+		list = append(list, strings.TrimSuffix(k, "/"))
 	}
 
 	return list, nil
@@ -157,6 +158,9 @@ func (r Backend) Clone() Backend {
 	}
 	for i := 0; i < len(r.Attrs); i++ {
 		for k, v := range r.Attrs[i] {
+			if b.Attrs[i] == nil {
+				b.Attrs[i] = make(Attributes, 0)
+			}
 			b.Attrs[i][k] = v
 		}
 	}

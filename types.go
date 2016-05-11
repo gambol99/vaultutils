@@ -30,7 +30,7 @@ var (
 var (
 	// SupportedAuthBackends is a list of supported auth backends
 	SupportedAuthBackends = []string{"userpass", "ldap", "token", "appid", "github", "mfa", "tls"}
-	//  SupportedBackendTypes is a list of supported secret backends
+	// SupportedBackendTypes is a list of supported secret backends
 	SupportedBackendTypes = []string{
 		"aws", "generic", "pki", "transit",
 		"cassandra", "consul", "cubbyhole", "mysql",
@@ -89,10 +89,10 @@ type Policy struct {
 
 // PolicyPermission represents a path permission
 type PolicyPermission struct {
-	// Policy
+	// Policy is the permission
 	Policy string `yaml:"policy" json:"policy" hcl:"policy"`
 	// Capabilities
-	Capabilities []string `yaml:"capabilities" json:"capabilities" hcl:"capabilities"`
+	Capabilities []string `yaml:"capabilities,omitempty" json:"capabilities,omitempty" hcl:"capabilities,omitempty"`
 }
 
 // Secret defines a secret
@@ -125,7 +125,7 @@ type User struct {
 	Policies []string `yaml:"policies" json:"policies" hcl:"policies"`
 }
 
-// UserCredentials are the userpass credentials
+// UserPass are the userpass credentials
 type UserPass struct {
 	// Username is the id of the user
 	Username string `yaml:"username" json:"username" hcl:"username"`

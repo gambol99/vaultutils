@@ -17,6 +17,7 @@ package vaultutils
 
 import (
 	"encoding/json"
+	"fmt"
 )
 
 //
@@ -52,17 +53,18 @@ func (r vaultctl) Policies() ([]string, error) {
 // GetPolicy retrieves a policy
 //
 func (r vaultctl) GetPolicy(name string) (Policy, error) {
+	var policy Policy
+
 	if found, err := r.HasPolicy(name); err != nil {
 		return Policy{}, err
 	} else if !found {
 		return Policy{}, ErrResourceNotFound
 	}
-
 	content, err := r.client.Sys().GetPolicy(name)
 	if err != nil {
 		return Policy{}, err
 	}
-	var policy Policy
+	policy.Name = name
 
 	if err := json.Unmarshal([]byte(content), &policy); err != nil {
 		return Policy{}, err
@@ -87,14 +89,32 @@ func (r vaultctl) DeletePolicy(name string) error {
 //
 // SetPolicy sets a policy in vault
 //
-func (r vaultctl) SetPolicy(policy Policy) error {
-	// step: encode the policy into json
-	content, err := json.Marshal(policy)
-	if err != nil {
-		return err
+func (r vaultctl) SetPolicy(policy Policy) (bool, error) {
+	var p struct {
+		Path map[string]PolicyPermission `yaml:"path" json:"path" hcl:"path"`
+	}
+	if len(policy.Path) <= 0 {
+		p.Path = make(map[string]PolicyPermission, 0)
+	} else {
+		p.Path = policy.Path
 	}
 
-	return r.client.Sys().PutPolicy(policy.Name, string(content))
+	// step: check if a policy exists already
+	found, err := r.HasPolicy(policy.Name)
+	if err != nil {
+		return false, err
+	}
+	// step: encode the policy into json
+	content, err := json.Marshal(&p)
+	if err != nil {
+		return false, err
+	}
+
+	if err := r.client.Sys().PutPolicy(policy.Name, string(content)); err != nil {
+		return false, err
+	}
+
+	return !found, nil
 }
 
 //

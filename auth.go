@@ -24,16 +24,18 @@ import (
 //
 // MountAuth creates or updates a auth backend
 //
-func (r vaultctl) MountAuth(a Auth) error {
+func (r vaultctl) MountAuth(a Auth) (bool, error) {
 	if err := a.IsValid(); err != nil {
-		return err
+		return false, err
 	}
 	// step: check if the auth backend is already mounted
-	if found, err := r.HasAuth(a.Path); err != nil {
-		return err
-	} else if !found {
+	found, err := r.HasAuth(a.Path)
+	if err != nil {
+		return found, err
+	}
+	if !found {
 		if err := r.client.Sys().EnableAuth(a.Path, a.Type, a.Description); err != nil {
-			return err
+			return false, err
 		}
 	}
 
@@ -41,14 +43,14 @@ func (r vaultctl) MountAuth(a Auth) error {
 	for _, c := range a.Attrs {
 		resp, err := r.request("POST", c.GetPath(a.Path), &c)
 		if err != nil {
-			return err
+			return !found, err
 		}
 		if resp.StatusCode != http.StatusNoContent {
-			return err
+			return !found, err
 		}
 	}
 
-	return nil
+	return !found, nil
 }
 
 //
@@ -86,7 +88,7 @@ func (r vaultctl) ListAuths() ([]string, error) {
 		return list, err
 	}
 
-	for k, _ := range auths {
+	for k := range auths {
 		list = append(list, k)
 	}
 

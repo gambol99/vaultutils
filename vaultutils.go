@@ -33,7 +33,10 @@ type vaultctl struct {
 	client *api.Client
 }
 
-func NewVaultUtils(config Config) (VaultUtils, error) {
+//
+// NewClient creates a new vaultutils client
+//
+func NewClient(config Config) (Client, error) {
 	options := api.DefaultConfig()
 	options.Address = config.VaultHostname
 	options.HttpClient = &http.Client{

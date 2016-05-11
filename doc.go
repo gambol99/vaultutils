@@ -20,15 +20,16 @@ import (
 )
 
 var (
+	// ErrNoAuthentication indicates no authentication method was given
 	ErrNoAuthentication = errors.New("no authentication specified")
 )
 
-// VaultUtils is the interface
-type VaultUtils interface {
+// Client is the interface
+type Client interface {
 	// MountAuth creates or updates a auth backend
-	MountAuth(Auth) error
+	MountAuth(Auth) (bool, error)
 	// MountBackend creates or update a secrets backend
-	MountBackend(Backend) error
+	MountBackend(Backend) (bool, error)
 	// HasBackend check if the backend exists
 	HasBackend(string) (bool, error)
 	// HasAuth checks if the authentication backend exists
@@ -40,7 +41,7 @@ type VaultUtils interface {
 	// RemoveGenericSecret remove a secret
 	RemoveGenericSecret(string) error
 	// SetPolicy adds or updates a policy
-	SetPolicy(Policy) error
+	SetPolicy(Policy) (bool, error)
 	// GetPolicy retrieves a policy
 	GetPolicy(string) (Policy, error)
 	// DeletePolicy remove a policy
