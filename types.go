@@ -122,7 +122,7 @@ type User struct {
 	// UserToken is a token struct for this user
 	UserToken *UserToken `yaml:"usertoken" json:"usertoken" hcl:"usertoken"`
 	// Policies is a list of policies the user has access to
-	Policies []string `yaml:"policies" json:"policies" hcl:"policies"`
+	Policies []string `yaml:"policies,omitempty" json:"policies,omitempty" hcl:"policies,omitempty"`
 }
 
 // UserPass are the userpass credentials
@@ -135,7 +135,9 @@ type UserPass struct {
 
 // UserToken is the token
 type UserToken struct {
-	// ID is the actual token itselg
+	// Path is the path of the auth token backend
+	Path string `yaml:"path" json:"path" hcl:"path"`
+	// ID is the actual token itself
 	ID string `yaml:"id" json:"id" hcl:"id"`
 	// TTL is the time duration of the token
 	TTL time.Duration `yaml:"ttl" json:"ttp" hcl:"ttl"`
@@ -143,4 +145,8 @@ type UserToken struct {
 	DisplayName string `yaml:"display-name" json:"display-name" hcl:"display-name"`
 	// MaxUses is the max number of times the token can be used
 	MaxUses int `yaml:"max-uses" json:"max-uses" hcl:"max-uses"`
+	// Policies is a list of polices for the token
+	Policies []string  `yaml:"policies,omitempty" json:"policies,omitempty" hcl:"policies,omitempty"`
+	// Metadata is metadata for the token
+	Metadata map[string]string `yaml:"metadata" json:"metadata" hcl:"metadata"`
 }

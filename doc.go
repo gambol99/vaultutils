@@ -58,4 +58,8 @@ type Client interface {
 	ListGenericSecrets(string) ([]string, error)
 	// ListAuths returns a list of auth backend
 	ListAuths() ([]string, error)
+	// CreateToken creates a new user token
+	CreateToken(UserToken) (string, error)
+	// LookupToken checks for a token
+	LookupToken(string) (UserToken, error)
 }
