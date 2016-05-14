@@ -17,6 +17,8 @@ package vaultutils
 
 import (
 	"errors"
+
+	api "github.com/hashicorp/vault/api"
 )
 
 var (
@@ -62,4 +64,6 @@ type Client interface {
 	CreateToken(UserToken) (string, error)
 	// LookupToken checks for a token
 	LookupToken(string) (UserToken, error)
+	// RawClient retuns the underlining vault client
+	RawClient() *api.Client
 }

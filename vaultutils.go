@@ -65,6 +65,10 @@ func NewClient(config Config) (Client, error) {
 	}, nil
 }
 
+func (r *vaultctl) RawClient() *api.Client {
+	return r.client
+}
+
 //
 // authorizeClient attempts to login to vault to retrieve a token
 //
