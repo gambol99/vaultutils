@@ -27,6 +27,7 @@ import (
 //
 func (r vaultctl) CreateToken(u UserToken) (string, error) {
 	secret, err := r.client.Auth().Token().Create(&api.TokenCreateRequest{
+		ID:          u.ID,
 		Policies:    u.Policies,
 		TTL:         u.TTL.String(),
 		DisplayName: u.DisplayName,
@@ -75,6 +76,9 @@ func (r vaultctl) LookupToken(token string) (UserToken, error) {
 	return user, nil
 }
 
+//
+// IsValid checks the defition is valid
+//
 func (r UserToken) IsValid() error {
 	if r.DisplayName == "" {
 		return fmt.Errorf("no display name")

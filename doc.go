@@ -38,10 +38,10 @@ type Client interface {
 	HasAuth(string) (bool, error)
 	// HasPolicy checks if the policy exists
 	HasPolicy(string) (bool, error)
-	// AddGenericSecrets adds a generic secret
-	AddGenericSecrets(string, map[string]string) error
-	// RemoveGenericSecret remove a secret
-	RemoveGenericSecret(string) error
+	// SetSecret adds a generic secret
+	SetSecret(Secret) error
+	// RemoveSecret remove a secret
+	RemoveSecret(string) error
 	// SetPolicy adds or updates a policy
 	SetPolicy(Policy) (bool, error)
 	// GetPolicy retrieves a policy
@@ -56,8 +56,6 @@ type Client interface {
 	ListMounts() ([]string, error)
 	// ListPolicies get a list of policies
 	ListPolicies() ([]string, error)
-	// ListGenericSecrets lists all the secrets under a path
-	ListGenericSecrets(string) ([]string, error)
 	// ListAuths returns a list of auth backend
 	ListAuths() ([]string, error)
 	// CreateToken creates a new user token

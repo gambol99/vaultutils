@@ -15,20 +15,14 @@ limitations under the License.
 
 package vaultutils
 
-// AddGenericSecrets adds a generic secret
-func (r vaultctl) AddGenericSecrets(path string, values map[string]string) error {
-
-	return nil
+// SetSecret adds a generic secret
+func (r *vaultctl) SetSecret(secret Secret) error {
+	_, err := r.client.Logical().Write(secret.Path, secret.Values)
+	return err
 }
 
-// RemoveGenericSecret remove a secret
-func (r vaultctl) RemoveGenericSecret(path string) error {
-
-	return nil
-}
-
-// ListGenericSecrets lists all the secrets under a path
-func (r vaultctl) ListGenericSecrets(string) ([]string, error) {
-
-	return []string{}, nil
+// RemoveSecret remove a secret
+func (r *vaultctl) RemoveSecret(path string) error {
+	_, err := r.client.Logical().Delete(path)
+	return err
 }

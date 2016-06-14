@@ -44,9 +44,8 @@ func (r vaultctl) MountBackend(b Backend) (bool, error) {
 				MaxLeaseTTL:     b.MaxLeaseTTL.String(),
 			},
 		}); err != nil {
-			return true, err
+			return false, err
 		}
-		found = false
 	}
 
 	// step: configure the backend
