@@ -51,13 +51,8 @@ type Config struct {
 	SkipTLSVerify bool
 }
 
-// Metadata defines additional attributes
-type Metadata map[string]string
-
 // Auth defined a authentication backend
 type Auth struct {
-	// Metadata defines additional attributes
-	Metadata Metadata `yaml:"metadata,omitempty" json:"metadata,omitempty"`
 	// Path is the path of the authentication backend
 	Path string `yaml:"path" json:"path" hcl:"path"`
 	// Type is the authentication type
@@ -70,8 +65,6 @@ type Auth struct {
 
 // Backend defined the type and configuration for a backend in vault
 type Backend struct {
-	// Metadata defines additional attributes
-	Metadata Metadata `yaml:"metadata,omitempty" json:"metadata,omitempty"`
 	// Path is the mountpoint for the mount
 	Path string `yaml:"path" json:"path" hcl:"path"`
 	// Description is the a description for the backend
@@ -88,8 +81,6 @@ type Backend struct {
 
 // Policy defines a vault policy
 type Policy struct {
-	// Metadata defines additional attributes
-	Metadata Metadata `yaml:"metadata,omitempty" json:"metadata,omitempty"`
 	// Name is the name of the policy
 	Name string `yaml:"name" json:"name" hcl:"name"`
 	// Path is a series of paths and their permissions
@@ -98,8 +89,6 @@ type Policy struct {
 
 // PolicyPermission represents a path permission
 type PolicyPermission struct {
-	// Metadata defines additional attributes
-	Metadata Metadata `yaml:"metadata,omitempty" json:"metadata,omitempty"`
 	// Policy is the permission
 	Policy string `yaml:"policy" json:"policy" hcl:"policy"`
 	// Capabilities
@@ -108,8 +97,6 @@ type PolicyPermission struct {
 
 // Secret defines a secret
 type Secret struct {
-	// Metadata defines additional attributes
-	Metadata Metadata `yaml:"metadata,omitempty" json:"metadata,omitempty"`
 	// Path is key for this secret
 	Path string `yaml:"path" json:"path" hcl:"path"`
 	// Values is a series of values associated to the secret
