@@ -57,8 +57,8 @@ func (r vaultctl) LookupToken(token string) (UserToken, error) {
 		user.DisplayName = v.(string)
 	}
 	if v, found := secret.Data["ttl"]; found {
-		f := v.(float64)
-		user.TTL = time.Duration(int64(f))
+		ttl := int64(v.(float64))
+		user.TTL = time.Duration(ttl) * time.Second
 	}
 	if v, found := secret.Data["policies"]; found {
 		for _, x := range v.([]interface{}) {
