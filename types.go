@@ -49,6 +49,20 @@ type Config struct {
 	Credentials Credentials
 	// SkipTLSVerify indicates if we should skip verifying the TLS
 	SkipTLSVerify bool
+	// CertificateAuthority is a provider used to sign certificate
+	CertificateAuthority *CertificateAuthority
+}
+
+//
+// CertificateAuthority defines a cfssl signer
+//
+type CertificateAuthority struct {
+	// Profile is used by multiroot ca
+	Profile string `yaml:"profile"`
+	// Token is the authentication token to use
+	Token string `yaml:"token"`
+	// URL is the url for signing requests
+	URL string `yaml:"url"`
 }
 
 // Auth defined a authentication backend
@@ -61,6 +75,13 @@ type Auth struct {
 	Description string `yaml:"description" json:"description" hcl:"description"`
 	// Attributes is a map of configurations for the backend
 	Attrs []Attributes `yaml:"attributes" json:"attributes" hcl:"attributes"`
+}
+
+// Certificates holds the certificates
+type Certificates struct {
+	PrivateKey  string
+	Certificate string
+	CSR         string
 }
 
 // Backend defined the type and configuration for a backend in vault
@@ -146,7 +167,12 @@ type UserToken struct {
 	// MaxUses is the max number of times the token can be used
 	MaxUses int `yaml:"max-uses" json:"max-uses" hcl:"max-uses"`
 	// Policies is a list of polices for the token
-	Policies []string  `yaml:"policies,omitempty" json:"policies,omitempty" hcl:"policies,omitempty"`
+	Policies []string `yaml:"policies,omitempty" json:"policies,omitempty" hcl:"policies,omitempty"`
 	// Metadata is metadata for the token
 	Metadata map[string]string `yaml:"metadata" json:"metadata" hcl:"metadata"`
+}
+
+type basicConstraints struct {
+	IsCA       bool `asn1:"optional"`
+	MaxPathLen int  `asn1:"optional,default:-1"`
 }

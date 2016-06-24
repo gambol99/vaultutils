@@ -29,9 +29,24 @@ func (r *Attributes) URI() string {
 	return ""
 }
 
+// IsSigning checks if we require signing
+func (r *Attributes) IsSigning() bool {
+	return r.HasAttribute("ca-signing")
+}
+
+// IsCreating check if the attribute is creating i.e. a post
+func (r *Attributes) IsCreating() bool {
+	return r.HasAttribute("creating")
+}
+
 // IsOneshot checks if the attribute is a oneshot attribute
 func (r *Attributes) IsOneshot() bool {
-	_, found := (*r)["oneshot"]
+	return r.HasAttribute("oneshot")
+}
+
+// HasAttribute checks if the attribute exists
+func (r *Attributes) HasAttribute(name string) bool {
+	_, found := (*r)[name]
 	return found
 }
 

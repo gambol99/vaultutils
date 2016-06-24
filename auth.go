@@ -17,7 +17,6 @@ package vaultutils
 
 import (
 	"fmt"
-	"net/http"
 	"strings"
 )
 
@@ -41,11 +40,8 @@ func (r vaultctl) MountAuth(a Auth) (bool, error) {
 
 	// step: config the backend
 	for _, c := range a.Attrs {
-		resp, err := r.request("POST", c.GetPath(a.Path), &c)
+		_, err := r.request("POST", c.GetPath(a.Path), &c)
 		if err != nil {
-			return !found, err
-		}
-		if resp.StatusCode != http.StatusNoContent {
 			return !found, err
 		}
 	}

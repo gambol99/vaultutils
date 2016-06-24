@@ -22,6 +22,9 @@ import (
 	"strings"
 	"time"
 
+	"encoding/json"
+	"github.com/cloudflare/cfssl/api/client"
+	"github.com/cloudflare/cfssl/auth"
 	"github.com/hashicorp/vault/api"
 )
 
@@ -30,7 +33,12 @@ const (
 )
 
 type vaultctl struct {
+	// the vault client
 	client *api.Client
+	// the signing client
+	signer *client.AuthRemote
+	// the config
+	config *Config
 }
 
 //
@@ -48,20 +56,32 @@ func NewClient(config Config) (Client, error) {
 		},
 	}
 	// step: get the client
-	client, err := api.NewClient(options)
+	vc, err := api.NewClient(options)
 	if err != nil {
 		return nil, err
 	}
 
 	// step: attempt to login and retrieve a token
-	token, err := authorizeClient(client, config.Credentials)
+	token, err := authorizeClient(vc, config.Credentials)
 	if err != nil {
 		return nil, err
 	}
-	client.SetToken(token)
+	vc.SetToken(token)
+
+	// step: create a signer if required
+	var signer *client.AuthRemote
+	if config.CertificateAuthority != nil {
+		sig, err := auth.New(config.CertificateAuthority.Token, []byte{})
+		if err != nil {
+			return nil, err
+		}
+		signer = client.NewAuthServer(config.CertificateAuthority.URL, sig)
+	}
 
 	return &vaultctl{
-		client: client,
+		client: vc,
+		signer: signer,
+		config: &config,
 	}, nil
 }
 
@@ -110,7 +130,7 @@ func authorizeClient(client *api.Client, creds Credentials) (string, error) {
 //
 // request performs a raw authenticated request to the vault service
 //
-func (r vaultctl) request(method, uri string, body interface{}) (*http.Response, error) {
+func (r vaultctl) request(method, uri string, body interface{}) (*api.Secret, error) {
 	url := fmt.Sprintf("/%s/%s", apiVersion, strings.TrimPrefix(uri, "/"))
 
 	request := r.client.NewRequest(method, url)
@@ -122,6 +142,20 @@ func (r vaultctl) request(method, uri string, body interface{}) (*http.Response,
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 
-	return resp.Response, nil
+	if resp.StatusCode < 200 || resp.StatusCode > 399 {
+		return nil, fmt.Errorf("invalid response from vault, content: %s", resp.Body)
+	}
+
+	var secret *api.Secret
+	if resp.ContentLength > 0 || resp.ContentLength < 0 {
+		// step: decode the response into a secret
+		secret = new(api.Secret)
+		if err := json.NewDecoder(resp.Body).Decode(secret); err != nil {
+			return nil, err
+		}
+	}
+
+	return secret, nil
 }
