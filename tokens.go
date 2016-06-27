@@ -16,6 +16,7 @@ limitations under the License.
 package vaultutils
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -57,7 +58,17 @@ func (r vaultctl) LookupToken(token string) (UserToken, error) {
 		user.DisplayName = v.(string)
 	}
 	if v, found := secret.Data["ttl"]; found {
-		ttl := int64(v.(float64))
+		var ttl int64
+		switch v.(type) {
+		case int:
+			ttl = int64(v.(int))
+		case int64:
+			ttl = v.(int64)
+		case json.Number:
+			ttl, _ = v.(json.Number).Int64()
+		default:
+			ttl = int64(v.(float64))
+		}
 		user.TTL = time.Duration(ttl) * time.Second
 	}
 	if v, found := secret.Data["policies"]; found {
