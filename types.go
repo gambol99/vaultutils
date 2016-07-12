@@ -43,6 +43,8 @@ type Attributes map[string]interface{}
 
 // Config is the library configuration
 type Config struct {
+	// Verbose enable verbose logging
+	Verbose bool
 	// Hostname is the address of the vault service
 	VaultHostname string
 	// Credentials are the credentials to login

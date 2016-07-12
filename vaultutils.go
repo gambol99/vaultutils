@@ -17,12 +17,12 @@ package vaultutils
 
 import (
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
 	"time"
 
-	"encoding/json"
 	"github.com/cloudflare/cfssl/api/client"
 	"github.com/cloudflare/cfssl/auth"
 	"github.com/hashicorp/vault/api"

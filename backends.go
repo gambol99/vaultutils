@@ -70,10 +70,8 @@ func (r *vaultctl) MountBackend(b Backend) (bool, error) {
 		case "pki":
 			if err := r.handlePKIBackend(&b, attr, secret); err != nil {
 				// step: delete the backend and try again later
-				if !found {
-					r.DeleteBackend(b.Path)
-					return false, err
-				}
+				r.DeleteBackend(b.Path)
+				return false, err
 			}
 		}
 	}
@@ -106,21 +104,24 @@ func (r *vaultctl) handlePKIBackend(backend *Backend, attributes Attributes, res
 
 	var signed string
 	var err error
-	for i := 0; i < 3; i++ {
-		complete := make(chan error, 1)
-		go func() {
-			// step: attempting to get teh CSR signed
-			signed, err = r.SignWithCertificateAuthority(csr.(string), r.config.CertificateAuthority.Profile)
-			complete <- err
-		}()
 
-		select {
-		case <-time.After(10 * time.Second):
-		case err = <-complete:
-			if err != nil {
+	complete := make(chan error, 1)
+	go func() {
+		for i := 0; i < 3; i++ {
+			if signed, err = r.SignWithCertificateAuthority(csr.(string), r.config.CertificateAuthority.Profile); err != nil {
 				time.Sleep(5 * time.Second)
 				continue
 			}
+			complete <- err
+		}
+	}()
+	// step: wait for completion or timeout
+	select {
+	case <-time.After(30 * time.Second):
+		return fmt.Errorf("timed out waiting for request ca signing to complete")
+	case err = <-complete:
+		if err != nil {
+			return err
 		}
 	}
 	if signed == "" {
